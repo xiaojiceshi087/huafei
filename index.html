@@ -10,7 +10,7 @@
       "1": "https://shangdian.shangdian501212.com/huafei/"
     };
     const params = new URLSearchParams(location.search);
-    const shortId = location.search.match(/^\?(\d+)$/)?.[1];
+    const shortId = location.search.match(/^\?(\d+)=?$/)?.[1];
     const target = params.get("url") || shortLinks[shortId];
 
     function parseHttpUrl(value) {
