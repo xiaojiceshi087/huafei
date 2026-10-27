@@ -6,8 +6,12 @@
   <meta name="robots" content="noindex,nofollow">
   <title>速捷惠享</title>
   <script>
+    const shortLinks = {
+      "1": "https://shangdian.shangdian501212.com/huafei/"
+    };
     const params = new URLSearchParams(location.search);
-    const target = params.get("url");
+    const shortId = location.search.match(/^\?(\d+)$/)?.[1];
+    const target = params.get("url") || shortLinks[shortId];
 
     function parseHttpUrl(value) {
       try {
@@ -107,7 +111,10 @@
           copy.hidden = true;
           return;
         }
-        generated = `${location.origin}${location.pathname}?url=${encodeURIComponent(destination)}`;
+        const shortEntry = Object.entries(shortLinks).find(([, url]) => url === destination);
+        generated = shortEntry
+          ? `${location.origin}${location.pathname}?${shortEntry[0]}`
+          : `${location.origin}${location.pathname}?url=${encodeURIComponent(destination)}`;
         result.innerHTML = `<a href="${generated}" target="_blank" rel="noopener noreferrer">${generated}</a>`;
         copy.hidden = false;
       });
