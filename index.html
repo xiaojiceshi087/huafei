@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>速捷惠享</title>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const target = params.get("url");
+
+    function parseHttpUrl(value) {
+      try {
+        const parsed = new URL(value);
+        return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : null;
+      } catch {
+        return null;
+      }
+    }
+
+    const destination = target ? parseHttpUrl(target) : null;
+    const ua = navigator.userAgent.toLowerCase();
+    const inApp = ua.includes("micromessenger") || /\bqq\//.test(ua);
+    if (destination && !inApp) location.replace(destination);
+  </script>
   <style>
     :root { color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     * { box-sizing: border-box; }
@@ -45,18 +63,7 @@
   </main>
 
   <script>
-    const params = new URLSearchParams(location.search);
-    const target = params.get("url");
     const app = document.querySelector("#app");
-
-    function parseHttpUrl(value) {
-      try {
-        const parsed = new URL(value);
-        return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : null;
-      } catch {
-        return null;
-      }
-    }
 
     async function copyText(value) {
       if (navigator.clipboard?.writeText) {
@@ -76,10 +83,6 @@
     }
 
     if (target) {
-      const destination = parseHttpUrl(target);
-      const ua = navigator.userAgent.toLowerCase();
-      const inApp = ua.includes("micromessenger") || /\bqq\//.test(ua);
-
       if (!destination) {
         app.innerHTML = '<div class="notice"><h1>链接无效</h1><p>请检查跳转地址是否以 http:// 或 https:// 开头。</p></div>';
       } else if (inApp) {
