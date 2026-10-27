@@ -22,6 +22,13 @@
     #result:empty { display: none; }
     .notice { text-align: center; }
     .notice strong { color: #67b3ff; }
+    .wechat-guide { position: fixed; inset: 0; z-index: 10; padding: 96px 26px 32px; background: #000d; text-align: left; }
+    .guide-brand { position: absolute; top: 24px; left: 20px; font-size: 20px; font-weight: 800; }
+    .wechat-guide svg { position: absolute; top: 14px; right: 14px; width: 150px; height: 125px; }
+    .wechat-guide h1 { margin-top: 80px; text-align: center; }
+    .wechat-guide p { max-width: 330px; margin: 20px auto; color: white; font-size: 19px; }
+    .step { display: inline-grid; place-items: center; width: 30px; height: 30px; margin-right: 10px; border-radius: 50%; background: #ff5a1f; font-weight: 800; }
+    .wechat-guide button { display: block; width: min(330px, 100%); margin: 28px auto 0; }
   </style>
 </head>
 <body>
@@ -51,6 +58,23 @@
       }
     }
 
+    async function copyText(value) {
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(value);
+          return;
+        } catch {}
+      }
+      const area = document.createElement("textarea");
+      area.value = value;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.append(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+
     if (target) {
       const destination = parseHttpUrl(target);
       const ua = navigator.userAgent.toLowerCase();
@@ -59,8 +83,11 @@
       if (!destination) {
         app.innerHTML = '<div class="notice"><h1>链接无效</h1><p>请检查跳转地址是否以 http:// 或 https:// 开头。</p></div>';
       } else if (inApp) {
-        app.innerHTML = `<div class="notice"><h1>请在浏览器打开</h1><p>点击右上角菜单，选择 <strong>在浏览器中打开</strong>。</p><button id="copyTarget" type="button">复制目标网址</button></div>`;
-        document.querySelector("#copyTarget").addEventListener("click", () => navigator.clipboard.writeText(destination));
+        app.innerHTML = `<div class="wechat-guide" role="dialog" aria-labelledby="guideTitle"><div class="guide-brand">速捷惠享</div><svg viewBox="0 0 150 125" aria-hidden="true"><path d="M22 112 C75 105 100 74 112 30" fill="none" stroke="white" stroke-width="7" stroke-linecap="round"/><path d="M91 40 L115 24 L126 51" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg><h1 id="guideTitle">请在浏览器打开</h1><p><span class="step">1</span>点击右上角的 <strong>•••</strong> 菜单</p><p><span class="step">2</span>选择 <strong>在浏览器中打开</strong></p><button id="copyTarget" type="button">复制目标地址</button></div>`;
+        document.querySelector("#copyTarget").addEventListener("click", async event => {
+          await copyText(destination);
+          event.target.textContent = "已复制";
+        });
       } else {
         location.replace(destination);
       }
@@ -83,7 +110,7 @@
       });
 
       copy.addEventListener("click", async () => {
-        await navigator.clipboard.writeText(generated);
+        await copyText(generated);
         copy.textContent = "已复制";
       });
     }
