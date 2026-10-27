@@ -25,7 +25,12 @@
     const destination = target ? parseHttpUrl(target) : null;
     const ua = navigator.userAgent.toLowerCase();
     const inApp = ua.includes("micromessenger") || /\bqq\//.test(ua);
-    if (destination && !inApp) location.replace(destination);
+    const openedInBrowser = location.hash === "#open-browser";
+    if (destination && (!inApp || openedInBrowser)) {
+      location.replace(destination);
+    } else if (destination && inApp) {
+      history.replaceState(null, "", `${location.pathname}${location.search}#open-browser`);
+    }
   </script>
   <style>
     :root { color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
